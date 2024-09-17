@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:gravity="center"
+    android:background="#ffffff">
+
+    <!-- Activity Title -->
+    <TextView
+        android:id="@+id/activity_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activity"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:paddingBottom="16dp"/>
+
+    <!-- Steps and Goal -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/steps_today"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Steps Today: 10,000"
+            android:layout_weight="1"
+            android:textSize="18sp"
+            android:textColor="#000000"/>
+
+        <TextView
+            android:id="@+id/steps_goal"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Goal: 12,000 (83%)"
+            android:layout_weight="1"
+            android:textSize="18sp"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+    <!-- Trends Section -->
+    <TextView
+        android:id="@+id/trends_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trends"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:paddingBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="3"
+        android:paddingBottom="16dp">
+
+        <Button
+            android:id="@+id/daily_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Daily"/>
+
+        <Button
+            android:id="@+id/weekly_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Weekly"/>
+
+        <Button
+            android:id="@+id/monthly_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Monthly"/>
+    </LinearLayout>
+
+    <!-- Graphs Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:paddingBottom="16dp">
+
+        <View
+            android:id="@+id/graph1"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:background="#DDDDDD"/>
+
+        <View
+            android:id="@+id/graph2"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:background="#DDDDDD"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"/>
+
+        <View
+            android:id="@+id/graph3"
+            android:layout_width="0dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:background="#DDDDDD"/>
+    </LinearLayout>
+
+    <!-- Goals Section -->
+    <TextView
+        android:id="@+id/goals_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Goals"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:paddingBottom="8dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:id="@+id/daily_goal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set Daily Goal: 12,000"
+            android:textSize="18sp"
+            android:textColor="#000000"
+            android:paddingBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/weekly_goal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set Weekly Goal: 70,000"
+            android:textSize="18sp"
+            android:textColor="#000000"/>
+    </LinearLayout>
+
+    <!-- Anomalies Section -->
+    <TextView
+        android:id="@+id/anomalies_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Anomalies"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/anomaly_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Unusual drop in activity"
+        android:textSize="18sp"
+        android:textColor="#FF0000"
+        android:paddingBottom="16dp"/>
+
+    <!-- Graph Section for Anomalies -->
+    <View
+        android:id="@+id/anomaly_graph"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#DDDDDD"
+        android:paddingBottom="16dp"/>
+
+    <!-- Climate Data Section -->
+    <TextView
+        android:id="@+id/climate_data_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Climate Data"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:paddingBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/climate_data_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Altitude: 300m"
+        android:textSize="18sp"
+        android:textColor="#000000"/>
+
+</LinearLayout>
