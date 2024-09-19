@@ -7,16 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/back_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:textSize="30sp"
-        android:text="SteP coUntEr"
-        android:textColor="#3a9bdc"
-        android:textFontWeight="800"
-        android:textStyle="bold"
-        />
+        android:text="Back N"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
     <RelativeLayout
         android:layout_width="wrap_content"
