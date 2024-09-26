@@ -55,6 +55,9 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         } else {
             Toast.makeText(this, "Step counter sensor is available", Toast.LENGTH_SHORT).show();
         }
+
+
+        AlarmScheduler.scheduleMidnightReset(this);
     }
 
     private void setupButtonListeners() {
