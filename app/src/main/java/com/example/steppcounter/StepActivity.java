@@ -7,7 +7,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +14,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import android.hardware.SensorEventListener;
 import com.google.android.material.button.MaterialButton;
+import java.text.DecimalFormat;
+
 
 public class StepActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager mSensorManager = null;
@@ -24,6 +25,8 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     private ProgressBar progressBar;
     private TextView steps;
     private MaterialButton backButton;
+    private TextView distanceStepped;
+    private final DecimalFormat df = new DecimalFormat("#.##");
 
 
 
@@ -33,11 +36,9 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         EdgeToEdge.enable(this);
         setContentView(R.layout.fragment_activity);
 
-
-        clearSharedPreferences();  // Clear old data
-
         progressBar= findViewById(R.id.progressBar);
         steps = findViewById(R.id.steps);
+        distanceStepped = findViewById(R.id.distanceStepped);
 
         backButton = findViewById(R.id.back_button); //sets up back button to id in fragment_activity xml file
         setupButtonListeners();
@@ -56,16 +57,12 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-
     private void setupButtonListeners() {
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(StepActivity.this, "Activity button clicked!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(StepActivity.this, MainActivity.class);
-                startActivity(intent);
-                // tells button to go from step activity to the main activity
-            }
+        backButton.setOnClickListener(v -> {
+            Toast.makeText(StepActivity.this, "Activity button clicked!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(StepActivity.this, MainActivity.class);
+            startActivity(intent);
+            // tells button to go from step activity to the main activity
         });
     }
 
@@ -78,43 +75,49 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
             Toast.makeText(this, "Device has no sensor", Toast.LENGTH_SHORT).show();
         }
         else {
-            mSensorManager.registerListener((SensorEventListener) this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
+            mSensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
-    protected void onPause() {
-        super.onPause();
-        mSensorManager.unregisterListener((SensorListener) this);
-    }
+
 
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
             totalSteps = (int) event.values[0];
-            int currentSteps = totalSteps-previewsTotalSteps;
+            int currentSteps;
+            if (totalSteps <= 0) {
+                previewsTotalSteps = totalSteps;
+                currentSteps = totalSteps;
+            } else {
+                currentSteps = totalSteps-previewsTotalSteps;
+            }
             steps.setText(String.valueOf(currentSteps));
             // changes total steps when sensor reacts
             progressBar.setProgress(currentSteps);
+
+            // changes total distance when step count changes
+            float distance = getDistanceStepped(currentSteps);
+            distanceStepped.setText(String.format("Distance stepped: %skm", df.format(distance)));
+
+            //testing purposes- step counts
+            TextView previewsTotalStepsView = findViewById(R.id.previewsTotalSteps);
+            TextView totalStepsView = findViewById(R.id.totalSteps);
+            previewsTotalStepsView.setText("Previous Total Steps: " + previewsTotalSteps);
+            totalStepsView.setText("Total Steps: " + totalSteps);
         }
 
     }
 
     private void resetSteps() {
-        steps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(StepActivity.this, "Long press to reset steps", Toast.LENGTH_SHORT).show();
-            } // method to reset steps after long click (note: reset isn't recognised when app is restarted)
-        });
+        // method to reset steps after long click (note: reset isn't recognised when app is restarted)
+        steps.setOnClickListener(v -> Toast.makeText(StepActivity.this, "Long press to reset steps", Toast.LENGTH_SHORT).show());
 
-        steps.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                previewsTotalSteps = totalSteps;
-                steps.setText("0");
-                progressBar.setProgress(0);
-                saveData();
-                return true;
-            }
+        steps.setOnLongClickListener(v -> {
+            previewsTotalSteps = totalSteps;
+            steps.setText("0");
+            progressBar.setProgress(0);
+            saveData();
+            return true;
         });
     }
 
@@ -127,19 +130,23 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
     private void loadData() { //loads number of steps taken after restarting app
         SharedPreferences sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
-        int savedNumber = (int) sharedPref.getFloat("key1", 0f);
-        previewsTotalSteps = savedNumber;
+        previewsTotalSteps = (int) sharedPref.getFloat("key1", 0f);
     }
+
+    private float getDistanceStepped(int totalDailySteps) {
+        return (float) (totalDailySteps * 74) /100000;
+    }
+
 
 
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
 
-    private void clearSharedPreferences() {
+    /*private void clearSharedPreferences() {
         SharedPreferences sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.clear();  // Clear all the data
         editor.apply();
-    }
+    } */
 }
