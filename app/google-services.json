@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "618052540982",
+    "project_id": "stepp-counter",
+    "storage_bucket": "stepp-counter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:618052540982:android:ac8377cebad245e80d1697",
+        "android_client_info": {
+          "package_name": "com.example.steppcounter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaiqx3I4yercnYAFtX60GFb8ICLRaFDMA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
