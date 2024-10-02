@@ -1,6 +1,8 @@
 package com.example.steppcounter;
 
+import android.hardware.Sensor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -9,15 +11,23 @@ import android.content.Intent;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
-    private TextView stepsValue, heartRateValue, caloriesBurned, bmi;
-    private MaterialButton activityButton, healthButton, nutritionButton; //creates buttons
+    private TextView stepsValue, heartRateValue, caloriesBurned, bmi, temp;
+    private MaterialButton activityButton, healthButton, editDetailsButton; //creates buttons
+    private TemperatureSensorManager temperatureSensorManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); // Inflate the provided XML layout (activity_main.xml)
+
+        // Create an instance of SensorChecker and check for Significant Motion Sensor
+        SensorChecker sensorChecker = new SensorChecker(this);  // Pass 'this' as the context
+        sensorChecker.checkForSignificantMotionSensor();
 
         // Initialize the views from the XML layout
         stepsValue = findViewById(R.id.steps_value);
@@ -26,10 +36,33 @@ public class MainActivity extends AppCompatActivity {
         bmi = findViewById(R.id.bmi);
         activityButton = findViewById(R.id.activity_button);
         healthButton = findViewById(R.id.health_button);
-        nutritionButton = findViewById(R.id.nutrition_button);
+        editDetailsButton = findViewById(R.id.edit_details_button);
 
         // Set up click listeners for the buttons
         setupButtonListeners();
+
+        temp = findViewById(R.id.alert);
+
+        //if temperature sensor is active then change temperature on main screen
+        temperatureSensorManager = new TemperatureSensorManager(this, new TemperatureSensorManager.TemperatureCallback() {
+            @Override
+            public void onTemperatureChanged(float temperature) {
+                temp.setText("Current Temperature: " + temperature + "°C");
+            }
+        });
+
+        //if temperature sensor is not on device, set text to tell user that sensor is not available
+        if (temperatureSensorManager == null || temperatureSensorManager.temperatureSensor == null) {
+            temp.setText("Ambient Temperature Sensor not available");
+        } else {
+            temperatureSensorManager.startListening();
+        }
+
+        // Check for Heart Rate Sensor
+        sensorChecker.checkForHeartRateSensor();
+
+        // Check for Significant Motion Sensor
+        sensorChecker.checkForSignificantMotionSensor();
     }
 
     private void setupButtonListeners() {
@@ -52,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        nutritionButton.setOnClickListener(new View.OnClickListener() {
+        editDetailsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this, "Nutrition button clicked!", Toast.LENGTH_SHORT).show();
@@ -60,6 +93,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    protected void onDestroy() {
+        super.onDestroy();
+        temperatureSensorManager.stopListening();
+    }
+
+
 
 
 }
