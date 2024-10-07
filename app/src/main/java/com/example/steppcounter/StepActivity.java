@@ -1,20 +1,28 @@
 package com.example.steppcounter;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
+import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import android.hardware.SensorEventListener;
 import com.google.android.material.button.MaterialButton;
 import java.text.DecimalFormat;
 import java.util.Calendar;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
@@ -22,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class StepActivity extends AppCompatActivity implements SensorEventListener {
-    private float totalSteps;
+    private int totalSteps;
     private SensorManager mSensorManager = null;
     private Sensor stepSensor;
     private int previewsTotalSteps;
@@ -33,7 +41,11 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     private final DecimalFormat df = new DecimalFormat("#.##");
     private static final String PREF_TOTAL_STEPS = "total_steps";
     private static final String PREF_DAILY_STEPS = "daily_steps";
-    private float dailySteps;
+    private int dailySteps;
+    private int currentTotalSteps;
+    private SharedPreferences sharedPref;
+    private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +60,18 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         backButton = findViewById(R.id.back_button); //sets up back button to id in fragment_activity xml file
         setupButtonListeners();
 
+        sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
+        prefListener = (sharedPreferences, key) -> {
+            if (PREF_DAILY_STEPS.equals(key)) {
+                dailySteps = (int) sharedPreferences.getFloat(PREF_DAILY_STEPS, 0f);
+                updateUI();
+            }
+        };
+
         resetSteps();
         loadData();
-
         scheduleDailyStepReset();
+
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         stepSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER); //sets up step count sensor
 
@@ -62,37 +82,65 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
             Toast.makeText(this, "Step counter sensor is available", Toast.LENGTH_SHORT).show();
         }
 
+        //Checks for user permission to access the step counter sensor
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACTIVITY_RECOGNITION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACTIVITY_RECOGNITION}, 1);
+        }
+
+
+
+
+
+    }
+
+    @Override
+    //asks user for permission to access step counter sensor
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                Toast.makeText(this, "Activity recognition permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                // Permission denied
+                Toast.makeText(this, "Activity recognition permission denied", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    // cancels any existing alarms to avoid conflict with main alarm.
+    private void cancelExistingAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, StepResetReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        alarmManager.cancel(pendingIntent);
     }
 
     //method schedules the daily reset for 12:00am daily
     private void scheduleDailyStepReset() {
+        cancelExistingAlarm(); // Cancel any existing alarms
 
-        Calendar current = Calendar.getInstance();
-        Calendar nextResetTime = Calendar.getInstance();
-        nextResetTime.set(Calendar.HOUR_OF_DAY, 0);
-        nextResetTime.set(Calendar.MINUTE, 0);
-        nextResetTime.set(Calendar.SECOND, 0);
-        nextResetTime.set(Calendar.MILLISECOND, 0);
+        // Set up the alarm to trigger at the next midnight
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
-        // If it's already past 12:00 AM today, schedule for the next day
-        if (nextResetTime.before(current)) {
-            nextResetTime.add(Calendar.DAY_OF_MONTH, 1);
+        // If it's past midnight, schedule for the next day
+        if (Calendar.getInstance().after(calendar)) {
+            calendar.add(Calendar.DATE, 1);
         }
 
-        long initialDelay = nextResetTime.getTimeInMillis() - current.getTimeInMillis();
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, StepResetReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-        // Schedule periodic work to run every 24 hours
-        PeriodicWorkRequest resetRequest = new PeriodicWorkRequest.Builder(StepResetWorker.class, 24, TimeUnit.HOURS)
-                .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-                .build();
-
-        // Enqueue the work
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-                "stepResetWork",
-                ExistingPeriodicWorkPolicy.REPLACE,
-                resetRequest);
+        // Schedule the alarm
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
     }
-
 
     private void setupButtonListeners() {
         backButton.setOnClickListener(v -> {
@@ -105,18 +153,18 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
     protected void onResume() {
         super.onResume();
-
+        loadData(); // Load the latest data, including after a reset
         if (stepSensor == null) {
             Toast.makeText(this, "Device has no sensor", Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else {
             mSensorManager.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
     protected void onPause() {
         super.onPause();
-
+        sharedPref.unregisterOnSharedPreferenceChangeListener(prefListener);
+        mSensorManager.unregisterListener(this);
     }
 
     public void onSensorChanged(SensorEvent event) {
@@ -125,17 +173,17 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
             if (totalSteps == 0) {
                 // First time app usage or a phone reset.
-                totalSteps = currentTotalSteps;
+                totalSteps = (int) currentTotalSteps;
             } else {
                 // If there are total steps then these are used to calculate steps when sensor changes
                 float newSteps = currentTotalSteps - totalSteps;
                 if (newSteps < 0) {
                     // Device reboot detected, reset daily steps
-                    dailySteps = currentTotalSteps;
+                    dailySteps = (int) currentTotalSteps;
                 } else {
                     dailySteps += newSteps; //step changes are added onto the daily step count
                 }
-                totalSteps = currentTotalSteps; // total step count is updated
+                totalSteps = (int) currentTotalSteps; // total step count is updated
             }
 
             updateUI(); // UI updated
@@ -144,7 +192,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void updateUI() {
-        int currentSteps = (int) dailySteps; //Converts daily step count to an integer
+        int currentSteps = dailySteps; //Converts daily step count to an integer
         steps.setText(String.valueOf(currentSteps)); //daily step count updated
         progressBar.setProgress(currentSteps); //progress bar updated
         float distance = getDistanceStepped(currentSteps);
@@ -180,8 +228,8 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
     private void loadData() { //loads number of steps taken after restarting app
         SharedPreferences sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
-        totalSteps = sharedPref.getFloat(PREF_TOTAL_STEPS, 0f); //loads the total step count
-        dailySteps = sharedPref.getFloat(PREF_DAILY_STEPS, 0f); //loads the daily step count
+        totalSteps = (int) sharedPref.getFloat(PREF_TOTAL_STEPS, 0f); //loads the total step count
+        dailySteps = (int) sharedPref.getFloat(PREF_DAILY_STEPS, 0f); //loads the daily step count
         updateUI();
     }
 
