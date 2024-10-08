@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             public void onTemperatureChanged(float temperature) {
                 temp.setText("Current Temperature: " + temperature + "°C");
             }
-        });
+        }, this);
 
         //if temperature sensor is not on device, set text to tell user that sensor is not available
         if (temperatureSensorManager == null || temperatureSensorManager.temperatureSensor == null) {
@@ -96,7 +96,16 @@ public class MainActivity extends AppCompatActivity {
 
     protected void onDestroy() {
         super.onDestroy();
-        temperatureSensorManager.stopListening();
+        if (temperatureSensorManager != null) {
+            temperatureSensorManager.stopListening();
+        }
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (temperatureSensorManager != null) {
+            temperatureSensorManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
 

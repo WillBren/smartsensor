@@ -27,6 +27,8 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import java.util.concurrent.TimeUnit;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 
 public class StepActivity extends AppCompatActivity implements SensorEventListener {
@@ -59,6 +61,8 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
         backButton = findViewById(R.id.back_button); //sets up back button to id in fragment_activity xml file
         setupButtonListeners();
+
+
 
         sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
         prefListener = (sharedPreferences, key) -> {
@@ -188,6 +192,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
             updateUI(); // UI updated
             saveData(); //data saved
+
         }
     }
 
