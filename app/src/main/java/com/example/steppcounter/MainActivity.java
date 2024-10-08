@@ -1,25 +1,23 @@
 package com.example.steppcounter;
 
-import android.hardware.Sensor;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
 
-    private TextView stepsValue, heartRateValue, caloriesBurned, bmi, temp;
+    private TextView temp;
     private MaterialButton activityButton, healthButton, editDetailsButton; //creates buttons
     private TemperatureSensorManager temperatureSensorManager;
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,10 +28,10 @@ public class MainActivity extends AppCompatActivity {
         sensorChecker.checkForSignificantMotionSensor();
 
         // Initialize the views from the XML layout
-        stepsValue = findViewById(R.id.steps_value);
-        heartRateValue = findViewById(R.id.heart_rate_value);
-        caloriesBurned = findViewById(R.id.calories_burned);
-        bmi = findViewById(R.id.bmi);
+        TextView stepsValue = findViewById(R.id.steps_value);
+        TextView heartRateValue = findViewById(R.id.heart_rate_value);
+        TextView caloriesBurned = findViewById(R.id.calories_burned);
+        TextView bmi = findViewById(R.id.bmi);
         activityButton = findViewById(R.id.activity_button);
         healthButton = findViewById(R.id.health_button);
         editDetailsButton = findViewById(R.id.edit_details_button);
@@ -45,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         //if temperature sensor is active then change temperature on main screen
         temperatureSensorManager = new TemperatureSensorManager(this, new TemperatureSensorManager.TemperatureCallback() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onTemperatureChanged(float temperature) {
                 temp.setText("Current Temperature: " + temperature + "°C");
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         }, this);
 
         //if temperature sensor is not on device, set text to tell user that sensor is not available
-        if (temperatureSensorManager == null || temperatureSensorManager.temperatureSensor == null) {
+        if (temperatureSensorManager.temperatureSensor == null) {
             temp.setText("Ambient Temperature Sensor not available");
         } else {
             temperatureSensorManager.startListening();
@@ -66,31 +65,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupButtonListeners() {
-        activityButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Activity button clicked!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(MainActivity.this, StepActivity.class);
-                startActivity(intent);
-                // tells button to go from main screen to activity screen
-            }
+        activityButton.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "Activity button clicked!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, StepActivity.class);
+            startActivity(intent);
+            // tells button to go from main screen to activity screen
         });
 
-        healthButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Health button clicked!", Toast.LENGTH_SHORT).show();
-                // tells button to go from main to health screen
-            }
+        healthButton.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "Health button clicked!", Toast.LENGTH_SHORT).show();
+            // tells button to go from main to health screen
         });
 
-        editDetailsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Nutrition button clicked!", Toast.LENGTH_SHORT).show();
-                // tells button to go from main to nutrition screen
-            }
+        editDetailsButton.setOnClickListener(v -> {
+            Toast.makeText(MainActivity.this, "Nutrition button clicked!", Toast.LENGTH_SHORT).show();
+            // tells button to go from main to nutrition screen
         });
     }
 
@@ -101,14 +90,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (temperatureSensorManager != null) {
             temperatureSensorManager.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-
-
-
-
 }

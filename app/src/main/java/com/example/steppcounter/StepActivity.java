@@ -1,4 +1,5 @@
 package com.example.steppcounter;
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -7,14 +8,15 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.hardware.SensorListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.hardware.SensorEventListener;
 import com.google.android.material.button.MaterialButton;
@@ -23,10 +25,6 @@ import java.util.Calendar;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-import java.util.concurrent.TimeUnit;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -35,7 +33,6 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     private int totalSteps;
     private SensorManager mSensorManager = null;
     private Sensor stepSensor;
-    private int previewsTotalSteps;
     private ProgressBar progressBar;
     private TextView steps;
     private MaterialButton backButton;
@@ -44,11 +41,11 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     private static final String PREF_TOTAL_STEPS = "total_steps";
     private static final String PREF_DAILY_STEPS = "daily_steps";
     private int dailySteps;
-    private int currentTotalSteps;
     private SharedPreferences sharedPref;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
 
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,7 +69,6 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
             }
         };
 
-        resetSteps();
         loadData();
         scheduleDailyStepReset();
 
@@ -175,6 +171,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
             float currentTotalSteps = event.values[0];
 
+            //Might be redundant
             if (totalSteps == 0) {
                 // First time app usage or a phone reset.
                 totalSteps = (int) currentTotalSteps;
@@ -185,7 +182,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
                     // Device reboot detected, reset daily steps
                     dailySteps = (int) currentTotalSteps;
                 } else {
-                    dailySteps += newSteps; //step changes are added onto the daily step count
+                    dailySteps += (int) newSteps; //step changes are added onto the daily step count
                 }
                 totalSteps = (int) currentTotalSteps; // total step count is updated
             }
@@ -196,6 +193,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    @SuppressLint("SetTextI18n")
     private void updateUI() {
         int currentSteps = dailySteps; //Converts daily step count to an integer
         steps.setText(String.valueOf(currentSteps)); //daily step count updated
@@ -208,19 +206,6 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         TextView totalStepsView = findViewById(R.id.totalSteps);
         previewsTotalStepsView.setText("Daily Steps: " + dailySteps);
         totalStepsView.setText("Total Steps: " + totalSteps);
-    }
-
-    private void resetSteps() {
-        // method to reset steps after long click (note: reset isn't recognised when app is restarted)
-        steps.setOnClickListener(v -> Toast.makeText(StepActivity.this, "Long press to reset steps", Toast.LENGTH_SHORT).show());
-
-        steps.setOnLongClickListener(v -> {
-            previewsTotalSteps = (int) totalSteps;
-            steps.setText("0");
-            progressBar.setProgress(0);
-            saveData();
-            return true;
-        });
     }
 
     private void saveData() { //saves the number of steps taken

@@ -27,7 +27,6 @@
         android:theme="@style/Theme.SteppCounter"
         tools:targetApi="31">
         <activity
-            android:name=".EditDetails"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

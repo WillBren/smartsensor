@@ -19,6 +19,7 @@ public class StepResetReceiver extends BroadcastReceiver {
     private static final String PREF_TOTAL_STEPS = "total_steps";
     private static final String PREF_DAILY_STEPS = "daily_steps";
 
+    //Receives the values and calls for reset
     @Override
     public void onReceive(Context context, Intent intent) {
         // Initialize Firebase
@@ -28,6 +29,7 @@ public class StepResetReceiver extends BroadcastReceiver {
         Log.d("StepResetReceiver", "Daily step count reset successfully.");
     }
 
+    //Resets the daily steps
     private void resetDailySteps(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("MyPref", Context.MODE_PRIVATE);
         float totalSteps = sharedPref.getFloat(PREF_TOTAL_STEPS, 0f);
