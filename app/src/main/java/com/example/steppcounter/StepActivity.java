@@ -1,4 +1,7 @@
 package com.example.steppcounter;
+import static android.content.ContentValues.TAG;
+
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -11,6 +14,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,14 +23,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.hardware.SensorEventListener;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import java.text.DecimalFormat;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 
 public class StepActivity extends AppCompatActivity implements SensorEventListener {
@@ -83,15 +96,13 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         }
 
         //Checks for user permission to access the step counter sensor
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACTIVITY_RECOGNITION)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACTIVITY_RECOGNITION}, 1);
+                    new String[]{Manifest.permission.ACTIVITY_RECOGNITION}, 1);
         }
 
-
-
-
+        FirebaseApp.initializeApp(this);
 
     }
 
@@ -201,11 +212,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         float distance = getDistanceStepped(currentSteps);
         distanceStepped.setText(String.format("Distance stepped: %skm", df.format(distance)));
 
-        // For testing purposes
-        TextView previewsTotalStepsView = findViewById(R.id.previewsTotalSteps);
-        TextView totalStepsView = findViewById(R.id.totalSteps);
-        previewsTotalStepsView.setText("Daily Steps: " + dailySteps);
-        totalStepsView.setText("Total Steps: " + totalSteps);
+
     }
 
     private void saveData() { //saves the number of steps taken

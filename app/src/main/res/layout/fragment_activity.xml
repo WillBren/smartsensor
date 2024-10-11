@@ -78,35 +78,6 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp">
 
-        <TextView
-            android:id="@+id/previewsTotalSteps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Previous Total Steps: 0"
-            android:textSize="16sp"
-            android:textColor="#FF1472BD" />
-
-        <TextView
-            android:id="@+id/totalSteps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Total Steps: 0"
-            android:textSize="16sp"
-            android:textColor="#FF1472BD"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:id="@+id/alarmCountdown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/totalSteps"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
-            android:text="Next reset in: 00:00:00"
-            android:textSize="16sp"
-            android:textColor="#FF1472BD"
-            android:textStyle="bold" />
-
     </LinearLayout>
 
 </RelativeLayout>
