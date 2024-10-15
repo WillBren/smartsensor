@@ -30,6 +30,7 @@ import com.google.android.material.button.MaterialButton;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import androidx.core.app.ActivityCompat;
@@ -50,6 +51,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     private TextView steps;
     private MaterialButton backButton;
     private TextView distanceStepped;
+    private TextView caloriesBurnt;
     private final DecimalFormat df = new DecimalFormat("#.##");
     private static final String PREF_TOTAL_STEPS = "total_steps";
     private static final String PREF_DAILY_STEPS = "daily_steps";
@@ -68,6 +70,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         progressBar= findViewById(R.id.progressBar);
         steps = findViewById(R.id.steps);
         distanceStepped = findViewById(R.id.distanceStepped);
+        caloriesBurnt = findViewById(R.id.caloriesBurnt);
 
         backButton = findViewById(R.id.back_button); //sets up back button to id in fragment_activity xml file
         setupButtonListeners();
@@ -210,7 +213,10 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         steps.setText(String.valueOf(currentSteps)); //daily step count updated
         progressBar.setProgress(currentSteps); //progress bar updated
         float distance = getDistanceStepped(currentSteps);
-        distanceStepped.setText(String.format("Distance stepped: %skm", df.format(distance)));
+        distanceStepped.setText(String.format("Distance stepped: %sm", df.format(distance)));
+
+        float burntCalories = getCaloriesBurnt(currentSteps);
+        caloriesBurnt.setText(String.format(Locale.getDefault(), "%.0f calories burnt", burntCalories));
 
 
     }
@@ -231,7 +237,12 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private float getDistanceStepped(int totalDailySteps) {
-        return (float) (totalDailySteps * 74) /100000;
+        // Calculate distance in meters
+        return (float) (totalDailySteps * 74) / 100; // Convert steps to meters
+    }
+
+    private float getCaloriesBurnt(int totalDailySteps) {
+        return (float) (totalDailySteps*0.04);
     }
 
     public void onAccuracyChanged(Sensor sensor, int i) {

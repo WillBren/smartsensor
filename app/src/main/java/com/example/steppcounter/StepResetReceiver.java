@@ -14,8 +14,8 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -29,17 +29,12 @@ public class StepResetReceiver extends BroadcastReceiver {
     private static final String PREF_TOTAL_STEPS = "total_steps";
     private static final String PREF_DAILY_STEPS = "daily_steps";
 
-    //Receives the values and calls for reset
     @Override
     public void onReceive(Context context, Intent intent) {
-        //Initialize Firebase
-        //FirebaseApp.initializeApp(context);
-
         resetDailySteps(context);
         Log.d("StepResetReceiver", "Daily step count reset successfully.");
     }
 
-    //Resets the daily steps
     private void resetDailySteps(Context context) {
         SharedPreferences sharedPref = context.getSharedPreferences("MyPref", Context.MODE_PRIVATE);
         float totalSteps = sharedPref.getFloat(PREF_TOTAL_STEPS, 0f);
@@ -58,30 +53,47 @@ public class StepResetReceiver extends BroadcastReceiver {
     }
 
     private void uploadDailyStepsToFirebase(float dailySteps) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        // Create a new user with a first and last name
-        Map<String, Object> activity = new HashMap<>();
-        activity.put("steps", dailySteps);
-        activity.put("date", getCurrentDate());
-        activity.put("distance", (dailySteps * 74) /100000);
+        if (currentUser != null) {
+            String userId = currentUser.getUid();  // Get the user's UID
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Activity")
-                .add(activity)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "Error adding document", e);
-                    }
-                });
+            // Create a map for storing step data
+            Map<String, Object> activity = new HashMap<>();
+            activity.put("steps", dailySteps);
+            activity.put("date", getCurrentDate());
+            double distanceInMeters = (dailySteps * 74) / 100.0; // Convert steps to meters
+            activity.put("distance", distanceInMeters); // Store the distance in meters
+            activity.put("calories burnt", Math.round((dailySteps * 0.04)));  // Calculate calories burnt
 
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+            // Use the current date as the document ID for the subcollection
+            String currentDate = getCurrentDate();
+
+            // Upload steps to the current user's document in the "Activity" subcollection
+            db.collection("users")
+                    .document(userId)  // Each user gets their own document identified by their UID
+                    .collection("Activity")  // Activity subcollection for each user
+                    .document(currentDate)  // Use current date as the document ID
+                    .set(activity)  // Use set() to create/overwrite the document with current date as ID
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written for date: " + currentDate);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error writing document", e);
+                        }
+                    });
+        } else {
+            Log.w(TAG, "No authenticated user found. Unable to upload steps.");
+        }
     }
+
 
     private String getCurrentDate() {
         // Returns the current date in yyyy-MM-dd format

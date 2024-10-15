@@ -9,12 +9,15 @@ import android.content.Intent;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView temp;
-    private MaterialButton activityButton, healthButton, editDetailsButton; //creates buttons
+    private MaterialButton activityButton, healthButton, editDetailsButton, logoutButton; //creates buttons
     private TemperatureSensorManager temperatureSensorManager;
+    private FirebaseAuth mAuth;
 
 
     @SuppressLint("SetTextI18n")
@@ -22,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); // Inflate the provided XML layout (activity_main.xml)
+
+        mAuth = FirebaseAuth.getInstance();
 
         // Create an instance of SensorChecker and check for Significant Motion Sensor
         SensorChecker sensorChecker = new SensorChecker(this);  // Pass 'this' as the context
@@ -35,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         activityButton = findViewById(R.id.activity_button);
         healthButton = findViewById(R.id.health_button);
         editDetailsButton = findViewById(R.id.edit_details_button);
+        logoutButton = findViewById(R.id.logout_button);
 
         // Set up click listeners for the buttons
         setupButtonListeners();
@@ -64,6 +70,19 @@ public class MainActivity extends AppCompatActivity {
         sensorChecker.checkForSignificantMotionSensor();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser == null){
+            // If no user is signed in, navigate back to Login Activity
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+    }
+
     private void setupButtonListeners() {
         activityButton.setOnClickListener(v -> {
             Toast.makeText(MainActivity.this, "Activity button clicked!", Toast.LENGTH_SHORT).show();
@@ -80,6 +99,14 @@ public class MainActivity extends AppCompatActivity {
         editDetailsButton.setOnClickListener(v -> {
             Toast.makeText(MainActivity.this, "Nutrition button clicked!", Toast.LENGTH_SHORT).show();
             // tells button to go from main to nutrition screen
+        });
+
+        logoutButton.setOnClickListener(v -> {
+            mAuth.signOut(); // Sign out from Firebase
+            Toast.makeText(MainActivity.this, "Logged out successfully!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class); // Navigate to Login Activity
+            startActivity(intent);
+            finish(); // Close the MainActivity
         });
     }
 
