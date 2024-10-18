@@ -28,9 +28,13 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -89,6 +93,10 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
         backButton = findViewById(R.id.back_button); //sets up back button to id in fragment_activity xml file
         setupButtonListeners();
+
+        // Set the chart title
+        TextView chartTitle = findViewById(R.id.chartTitle);
+        chartTitle.setText("Weekly Steps Overview");
 
 
 
@@ -271,18 +279,36 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         db.collection("users")
                 .document(userId)
                 .collection("Activity")
-                .orderBy("date")
+                .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .limit(7)  // Fetch data for the last 7 days
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Entry> entries = new ArrayList<>();  // List for chart data
+                    List<String> dates = new ArrayList<>(); // List for dates
                     int index = 0;
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         long steps = document.getLong("steps");
                         entries.add(new Entry(index, steps));  // Add steps data to entries
                         index++;
+
+                        // Get the date from the document
+                        String dateString = document.getString("date");
+                        if (dateString != null) {
+                            // Parse the date and format it to only show month and day
+                            try {
+                                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                                SimpleDateFormat outputFormat = new SimpleDateFormat("MM-dd", Locale.getDefault());
+                                Date date = inputFormat.parse(dateString);
+                                String formattedDate = outputFormat.format(date);
+                                dates.add(0, formattedDate); // Store the formatted date in the list
+                            } catch (ParseException e) {
+                                Log.e(TAG, "Error parsing date: " + dateString, e);
+                            }
+                        }
                     }
+
+
 
                     // Create dataset and assign it to the chart
                     LineDataSet dataSet = new LineDataSet(entries, "Steps");
@@ -290,6 +316,10 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
                     LineData lineData = new LineData(dataSet);
                     lineChart.setData(lineData);
                     lineChart.invalidate();  // Refresh chart
+
+                    // Update the x-axis with the fetched dates
+                    XAxis xAxis = lineChart.getXAxis();
+                    xAxis.setValueFormatter(new IndexAxisValueFormatter(dates)); // Set the dates as labels
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "Error retrieving step data", e));
     }
@@ -304,7 +334,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setGranularity(1f);  // Interval of 1 day
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(getDaysOfWeek()));  // Labels for x-axis
+
 
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setDrawGridLines(true);
@@ -313,12 +343,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         rightAxis.setEnabled(false);  // Disable the right axis
     }
 
-    private List<String> getDaysOfWeek() {
-        // Return a list of the last 7 days
-        String[] days = new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-        Arrays Arrays = null;
-        return java.util.Arrays.asList(days);
-    }
+
 
     public void onAccuracyChanged(Sensor sensor, int i) {
 

@@ -93,6 +93,20 @@
             android:textSize="18sp"
             android:textColor="#FF1472BD" />
 
+        <!-- Title for the LineChart -->
+        <TextView
+            android:id="@+id/chartTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weekly Steps Overview"
+            android:textSize="24sp"
+            android:textColor="#FF1472BD"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="8dp"
+            android:layout_below="@id/caloriesBurnt" />
+
+
         <!-- LineChart for Weekly Steps -->
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/lineChart"
