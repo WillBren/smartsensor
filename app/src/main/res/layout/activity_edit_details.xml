@@ -1,72 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".EditDetailsActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditDetailsActivity">
 
-<EditText
-    android:id="@+id/et_name"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:hint="Enter your name"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    android:padding="16dp"/>
+    <!-- Name Header -->
+    <TextView
+        android:id="@+id/header_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp" />
 
-<EditText
-    android:id="@+id/et_age"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:hint="Enter your age"
-    android:inputType="number"
-    app:layout_constraintTop_toBottomOf="@id/et_name"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    android:padding="16dp" />
+    <!-- Name Input Field -->
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your name"
+        app:layout_constraintTop_toBottomOf="@id/header_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:padding="16dp"/>
 
-<EditText
-    android:id="@+id/et_weight"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:hint="Enter your weight (kg)"
-    android:inputType="numberDecimal"
-    app:layout_constraintTop_toBottomOf="@id/et_age"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    android:padding="16dp"/>
+    <!-- Age Header -->
+    <TextView
+        android:id="@+id/header_age"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Age"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/et_name"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp" />
 
-<EditText
-    android:id="@+id/et_height"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:hint="Enter your height (cm)"
-    android:inputType="numberDecimal"
-    app:layout_constraintTop_toBottomOf="@id/et_weight"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    android:padding="16dp"/>
+    <!-- Age Input Field -->
+    <EditText
+        android:id="@+id/et_age"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your age"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@id/header_age"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:padding="16dp" />
 
-<EditText
-    android:id="@+id/et_gender"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:hint="Enter your gender"
-    app:layout_constraintTop_toBottomOf="@id/et_height"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    android:padding="16dp"/>
+    <!-- Weight Header -->
+    <TextView
+        android:id="@+id/header_weight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Weight (kg)"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/et_age"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp" />
 
-<Button
-    android:id="@+id/btn_save_details"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Save"
-    app:layout_constraintTop_toBottomOf="@id/et_gender"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    android:padding="16dp"/>
+    <!-- Weight Input Field -->
+    <EditText
+        android:id="@+id/et_weight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your weight (kg)"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/header_weight"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:padding="16dp"/>
 
+    <!-- Height Header -->
+    <TextView
+        android:id="@+id/header_height"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Height (cm)"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/et_weight"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp" />
+
+    <!-- Height Input Field -->
+    <EditText
+        android:id="@+id/et_height"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your height (cm)"
+        android:inputType="numberDecimal"
+        app:layout_constraintTop_toBottomOf="@id/header_height"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:padding="16dp"/>
+
+    <!-- Gender Header -->
+    <TextView
+        android:id="@+id/header_gender"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Gender"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/et_height"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp" />
+
+    <!-- Gender Input Field -->
+    <EditText
+        android:id="@+id/et_gender"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Enter your gender"
+        app:layout_constraintTop_toBottomOf="@id/header_gender"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:padding="16dp"/>
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/btn_save_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        app:layout_constraintTop_toBottomOf="@id/et_gender"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:padding="16dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

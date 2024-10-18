@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -47,8 +47,37 @@ public class EditDetailsActivity extends AppCompatActivity {
         etGender = findViewById(R.id.et_gender);
         btnSaveDetails = findViewById(R.id.btn_save_details);
 
+        // Load user details when the activity starts
+        loadUserDetails();
+
         // Set up button listener for saving details
         btnSaveDetails.setOnClickListener(v -> saveUserDetails());
+    }
+
+    // Method to load user details from Firestore
+    private void loadUserDetails() {
+        firestore.collection("users")
+                .document(userId)
+                .collection("Details")
+                .document("personalInfo")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            // Get the user details and set them in EditText fields
+                            etName.setText(document.getString("name"));
+                            etAge.setText(Objects.requireNonNull(document.getLong("age")).toString());
+                            etWeight.setText(Objects.requireNonNull(document.getDouble("weight")).toString());
+                            etHeight.setText(Objects.requireNonNull(document.getDouble("height")).toString());
+                            etGender.setText(document.getString("gender"));
+                        } else {
+                            Toast.makeText(EditDetailsActivity.this, "No details found", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(EditDetailsActivity.this, "Failed to fetch details", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void saveUserDetails() {
@@ -72,12 +101,11 @@ public class EditDetailsActivity extends AppCompatActivity {
         userDetails.put("gender", gender);
 
         // Get the user's document and add data to the "Details" collection under it
-        CollectionReference detailsCollectionRef = firestore.collection("users")
-                .document(userId)  // Targeting the correct user document
-                .collection("Details");  // Collection under that document
-
-        // Add a document to the "Details" collection under this user
-        detailsCollectionRef.document("personalInfo").set(userDetails)  // You can specify a custom document name like "personalInfo"
+        firestore.collection("users")
+                .document(userId)
+                .collection("Details")
+                .document("personalInfo")
+                .set(userDetails)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(EditDetailsActivity.this, "Details updated successfully", Toast.LENGTH_SHORT).show();
