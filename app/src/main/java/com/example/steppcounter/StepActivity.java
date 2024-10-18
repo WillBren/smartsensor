@@ -28,8 +28,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -40,7 +43,17 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.animation.Easing;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 
 public class StepActivity extends AppCompatActivity implements SensorEventListener {
@@ -58,6 +71,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     private int dailySteps;
     private SharedPreferences sharedPref;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
+    private LineChart lineChart;
 
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -71,6 +85,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         steps = findViewById(R.id.steps);
         distanceStepped = findViewById(R.id.distanceStepped);
         caloriesBurnt = findViewById(R.id.caloriesBurnt);
+        lineChart = findViewById(R.id.lineChart);  // Initialize the chart
 
         backButton = findViewById(R.id.back_button); //sets up back button to id in fragment_activity xml file
         setupButtonListeners();
@@ -90,6 +105,9 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         stepSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER); //sets up step count sensor
+
+        setupChart();  // Add this function to configure the chart
+        loadWeeklySteps();  // Function to retrieve step data for the past week
 
         //checks if step sensor is available on the device
         if (stepSensor == null) {
@@ -243,6 +261,63 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
     private float getCaloriesBurnt(int totalDailySteps) {
         return (float) (totalDailySteps*0.04);
+    }
+
+    private void loadWeeklySteps() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        // Fetch last 7 days' data
+        db.collection("users")
+                .document(userId)
+                .collection("Activity")
+                .orderBy("date")
+                .limit(7)  // Fetch data for the last 7 days
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    List<Entry> entries = new ArrayList<>();  // List for chart data
+                    int index = 0;
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        long steps = document.getLong("steps");
+                        entries.add(new Entry(index, steps));  // Add steps data to entries
+                        index++;
+                    }
+
+                    // Create dataset and assign it to the chart
+                    LineDataSet dataSet = new LineDataSet(entries, "Steps");
+                    dataSet.setLineWidth(2f);
+                    LineData lineData = new LineData(dataSet);
+                    lineChart.setData(lineData);
+                    lineChart.invalidate();  // Refresh chart
+                })
+                .addOnFailureListener(e -> Log.w(TAG, "Error retrieving step data", e));
+    }
+
+    private void setupChart() {
+        lineChart.getDescription().setEnabled(false);  // Disable chart description
+        lineChart.setTouchEnabled(true);
+        lineChart.setDragEnabled(true);
+        lineChart.setScaleEnabled(true);
+
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setGranularity(1f);  // Interval of 1 day
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(getDaysOfWeek()));  // Labels for x-axis
+
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setDrawGridLines(true);
+
+        YAxis rightAxis = lineChart.getAxisRight();
+        rightAxis.setEnabled(false);  // Disable the right axis
+    }
+
+    private List<String> getDaysOfWeek() {
+        // Return a list of the last 7 days
+        String[] days = new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+        Arrays Arrays = null;
+        return java.util.Arrays.asList(days);
     }
 
     public void onAccuracyChanged(Sensor sensor, int i) {

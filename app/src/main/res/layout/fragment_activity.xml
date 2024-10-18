@@ -1,94 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:fillViewport="true">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Back N"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
-
+    <!-- Main container layout -->
     <RelativeLayout
-        android:id="@+id/central_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true">
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/circular_shape"
-            android:progressDrawable="@drawable/circular_progress_bar" />
-
-        <LinearLayout
+        <!-- Back Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_centerInParent="true">
+            android:text="Back N"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_marginTop="16dp"
+            android:layout_marginStart="16dp"/>
 
-            <TextView
-                android:id="@+id/steps_label"
+        <!-- Central layout for progress and steps -->
+        <RelativeLayout
+            android:id="@+id/central_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:layout_below="@id/back_button">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/circular_shape"
+                android:progressDrawable="@drawable/circular_progress_bar" />
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Steps"
-                android:layout_gravity="center"
-                android:textSize="24sp"
-                android:textColor="#FF1472BD"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:layout_centerInParent="true">
 
-            <TextView
-                android:id="@+id/steps"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:textSize="40sp"
-                android:textColor="#FF1472BD"
-                android:textStyle="bold" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/steps_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Steps"
+                    android:layout_gravity="center"
+                    android:textSize="24sp"
+                    android:textColor="#FF1472BD"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/steps"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textSize="40sp"
+                    android:textColor="#FF1472BD"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <!-- Distance Stepped Text -->
+        <TextView
+            android:id="@+id/distanceStepped"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/central_layout"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="Distance stepped: 0 km"
+            android:textSize="18sp"
+            android:textColor="#FF1472BD" />
+
+        <!-- Calories Burnt Text -->
+        <TextView
+            android:id="@+id/caloriesBurnt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/distanceStepped"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="Calories burned: 0 kcal"
+            android:textSize="18sp"
+            android:textColor="#FF1472BD" />
+
+        <!-- LineChart for Weekly Steps -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/lineChart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/caloriesBurnt"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp" />
     </RelativeLayout>
-
-    <TextView
-        android:id="@+id/distanceStepped"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/central_layout"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="Distance stepped: 0 km"
-        android:textSize="18sp"
-        android:textColor="#FF1472BD" />
-
-    <TextView
-        android:id="@+id/caloriesBurnt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/distanceStepped"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:text="Calories burned: 0 kcal"
-        android:textSize="18sp"
-        android:textColor="#FF1472BD" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_below="@id/distanceStepped"
-        android:layout_marginTop="16dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
-
-    </LinearLayout>
-
-</RelativeLayout>
+</ScrollView>
