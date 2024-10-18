@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class EditDetailsActivity extends AppCompatActivity {
 
@@ -36,7 +37,7 @@ public class EditDetailsActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         // Get current user ID
-        userId = mAuth.getCurrentUser().getUid();
+        userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
 
         // Link UI elements
         etName = findViewById(R.id.et_name);
@@ -77,15 +78,12 @@ public class EditDetailsActivity extends AppCompatActivity {
 
         // Add a document to the "Details" collection under this user
         detailsCollectionRef.document("personalInfo").set(userDetails)  // You can specify a custom document name like "personalInfo"
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(EditDetailsActivity.this, "Details updated successfully", Toast.LENGTH_SHORT).show();
-                            finish();  // Close the activity after saving
-                        } else {
-                            Toast.makeText(EditDetailsActivity.this, "Failed to update details", Toast.LENGTH_SHORT).show();
-                        }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(EditDetailsActivity.this, "Details updated successfully", Toast.LENGTH_SHORT).show();
+                        finish();  // Close the activity after saving
+                    } else {
+                        Toast.makeText(EditDetailsActivity.this, "Failed to update details", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
