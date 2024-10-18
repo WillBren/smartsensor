@@ -44,6 +44,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.auth.FirebaseAuth;
@@ -287,7 +288,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         db.collection("users")
                 .document(userId)
                 .collection("Activity")
-                .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .orderBy("date", Query.Direction.DESCENDING)
                 .limit(7)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -328,20 +329,23 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
                     stepsLineChart.setData(stepsLineData);
                     stepsLineChart.invalidate();
 
-                    // Populate BarChart for distance
+                    // Populate BarChart for distance with rainbow colors for each day
                     BarDataSet distanceDataSet = new BarDataSet(distanceEntries, "Distance (m)");
+                    // Define rainbow colors for 7 bars (you can add more colors if necessary)
+                    int[] rainbowColors = {
+                            Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE, Color.CYAN, Color.MAGENTA, Color.DKGRAY
+                    };
+                    distanceDataSet.setColors(rainbowColors);  // Apply the rainbow color scheme to bars
                     BarData distanceBarData = new BarData(distanceDataSet);
                     distanceBarChart.setData(distanceBarData);
                     distanceBarChart.invalidate();
 
-                    // Populate PieChart for calories
+                    // Populate PieChart for calories with rainbow colors for each slice
                     PieDataSet caloriesDataSet = new PieDataSet(caloriesEntries, "Calories Burnt");
-                    caloriesDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+                    // Apply the same rainbow color scheme to the pie chart
+                    caloriesDataSet.setColors(rainbowColors);  // Use the same rainbow colors
                     PieData caloriesPieData = new PieData(caloriesDataSet);
-
-                    caloriesPieData.setDrawValues(false);  // Move this here after setting the data
-
-
+                    caloriesPieData.setDrawValues(false);  // Remove default value labels for clarity
                     caloriesPieChart.setData(caloriesPieData);
                     caloriesPieChart.invalidate();
 
