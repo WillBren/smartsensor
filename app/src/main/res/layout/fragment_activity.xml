@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
     android:fillViewport="true">
 
-    <!-- Main container layout -->
     <RelativeLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
@@ -18,7 +14,7 @@
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back N"
+            android:text="Back"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_marginTop="16dp"
             android:layout_marginStart="16dp"/>
@@ -93,9 +89,9 @@
             android:textSize="18sp"
             android:textColor="#FF1472BD" />
 
-        <!-- Title for the LineChart -->
+        <!-- Title for the Steps LineChart -->
         <TextView
-            android:id="@+id/chartTitle"
+            android:id="@+id/stepsChartTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Weekly Steps Overview"
@@ -103,18 +99,64 @@
             android:textColor="#FF1472BD"
             android:textStyle="bold"
             android:layout_centerHorizontal="true"
-            android:layout_marginBottom="8dp"
+            android:layout_marginTop="24dp"
             android:layout_below="@id/caloriesBurnt" />
-
 
         <!-- LineChart for Weekly Steps -->
         <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/lineChart"
+            android:id="@+id/stepsLineChart"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:layout_below="@id/caloriesBurnt"
-            android:layout_marginTop="20dp"
+            android:layout_below="@id/stepsChartTitle"
+            android:layout_marginTop="8dp"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp" />
+
+        <!-- Title for the Distance BarChart -->
+        <TextView
+            android:id="@+id/distanceChartTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weekly Distance Overview"
+            android:textSize="24sp"
+            android:textColor="#FF1472BD"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:layout_below="@id/stepsLineChart" />
+
+        <!-- BarChart for Weekly Distance -->
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/distanceBarChart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/distanceChartTitle"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp" />
+
+        <!-- Title for the Calories Burnt PieChart -->
+        <TextView
+            android:id="@+id/caloriesChartTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Weekly Calories Burnt Overview"
+            android:textSize="24sp"
+            android:textColor="#FF1472BD"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="24dp"
+            android:layout_below="@id/distanceBarChart" />
+
+        <!-- PieChart for Weekly Calories Burnt -->
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/caloriesPieChart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_below="@id/caloriesChartTitle"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="24dp" />
     </RelativeLayout>
 </ScrollView>

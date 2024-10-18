@@ -1,4 +1,5 @@
 package com.example.steppcounter;
+
 import static android.content.ContentValues.TAG;
 
 import android.Manifest;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
@@ -31,34 +33,37 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Objects;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.auth.FirebaseAuth;
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.animation.Easing;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 public class StepActivity extends AppCompatActivity implements SensorEventListener {
     private int totalSteps;
@@ -75,31 +80,43 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
     private int dailySteps;
     private SharedPreferences sharedPref;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
-    private LineChart lineChart;
 
+    // LineChart, BarChart, PieChart
+    private LineChart stepsLineChart;
+    private BarChart distanceBarChart;
+    private PieChart caloriesPieChart;
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.fragment_activity);
 
-        progressBar= findViewById(R.id.progressBar);
+        // Initialize UI elements
+        progressBar = findViewById(R.id.progressBar);
         steps = findViewById(R.id.steps);
         distanceStepped = findViewById(R.id.distanceStepped);
         caloriesBurnt = findViewById(R.id.caloriesBurnt);
-        lineChart = findViewById(R.id.lineChart);  // Initialize the chart
 
-        backButton = findViewById(R.id.back_button); //sets up back button to id in fragment_activity xml file
+        // Initialize LineChart, BarChart, and PieChart
+        stepsLineChart = findViewById(R.id.stepsLineChart);
+        distanceBarChart = findViewById(R.id.distanceBarChart);
+        caloriesPieChart = findViewById(R.id.caloriesPieChart);
+
+        backButton = findViewById(R.id.back_button);
         setupButtonListeners();
 
-        // Set the chart title
-        TextView chartTitle = findViewById(R.id.chartTitle);
-        chartTitle.setText("Weekly Steps Overview");
+        // Set the chart titles
+        TextView stepsChartTitle = findViewById(R.id.stepsChartTitle);
+        stepsChartTitle.setText("Weekly Steps Overview");
 
+        TextView distanceChartTitle = findViewById(R.id.distanceChartTitle);
+        distanceChartTitle.setText("Weekly Distance Overview");
 
+        TextView caloriesChartTitle = findViewById(R.id.caloriesChartTitle);
+        caloriesChartTitle.setText("Weekly Calories Burnt Overview");
 
+        // Set up shared preferences and sensor
         sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
         prefListener = (sharedPreferences, key) -> {
             if (PREF_DAILY_STEPS.equals(key)) {
@@ -107,6 +124,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
                 updateUI();
             }
         };
+        sharedPref.registerOnSharedPreferenceChangeListener(prefListener);
 
         loadData();
         scheduleDailyStepReset();
@@ -114,17 +132,17 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         stepSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER); //sets up step count sensor
 
-        setupChart();  // Add this function to configure the chart
-        loadWeeklySteps();  // Function to retrieve step data for the past week
+        setupCharts();  // Configure all charts
+        loadWeeklyData();  // Retrieve and plot weekly data
 
-        //checks if step sensor is available on the device
+        // Check if step sensor is available on the device
         if (stepSensor == null) {
             Toast.makeText(this, "Step counter sensor is not present on this device", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Step counter sensor is available", Toast.LENGTH_SHORT).show();
         }
 
-        //Checks for user permission to access the step counter sensor
+        // Check for user permission to access the step counter sensor
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACTIVITY_RECOGNITION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -132,7 +150,6 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         }
 
         FirebaseApp.initializeApp(this);
-
     }
 
     @Override
@@ -184,10 +201,9 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
     private void setupButtonListeners() {
         backButton.setOnClickListener(v -> {
-            Toast.makeText(StepActivity.this, "Activity button clicked!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(StepActivity.this, "Back button clicked!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(StepActivity.this, MainActivity.class);
             startActivity(intent);
-            // tells button to go from step activity to the main activity
         });
     }
 
@@ -211,139 +227,207 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         if (event.sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
             float currentTotalSteps = event.values[0];
 
-            //Might be redundant
             if (totalSteps == 0) {
                 // First time app usage or a phone reset.
                 totalSteps = (int) currentTotalSteps;
             } else {
-                // If there are total steps then these are used to calculate steps when sensor changes
                 float newSteps = currentTotalSteps - totalSteps;
                 if (newSteps < 0) {
-                    // Device reboot detected, reset daily steps
                     dailySteps = (int) currentTotalSteps;
                 } else {
-                    dailySteps += (int) newSteps; //step changes are added onto the daily step count
+                    dailySteps += (int) newSteps;
                 }
-                totalSteps = (int) currentTotalSteps; // total step count is updated
+                totalSteps = (int) currentTotalSteps;
             }
 
-            updateUI(); // UI updated
-            saveData(); //data saved
-
+            updateUI();
+            saveData();
         }
     }
 
     @SuppressLint("SetTextI18n")
     private void updateUI() {
-        int currentSteps = dailySteps; //Converts daily step count to an integer
-        steps.setText(String.valueOf(currentSteps)); //daily step count updated
-        progressBar.setProgress(currentSteps); //progress bar updated
+        int currentSteps = dailySteps;
+        steps.setText(String.valueOf(currentSteps));
+        progressBar.setProgress(currentSteps);
         float distance = getDistanceStepped(currentSteps);
         distanceStepped.setText(String.format("Distance stepped: %sm", df.format(distance)));
 
         float burntCalories = getCaloriesBurnt(currentSteps);
         caloriesBurnt.setText(String.format(Locale.getDefault(), "%.0f calories burnt", burntCalories));
-
-
     }
 
-    private void saveData() { //saves the number of steps taken
+    private void saveData() {
         SharedPreferences sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putFloat(PREF_TOTAL_STEPS, totalSteps); //saves total step count
-        editor.putFloat(PREF_DAILY_STEPS, dailySteps); //saves the daily step count
+        editor.putFloat(PREF_TOTAL_STEPS, totalSteps);
+        editor.putFloat(PREF_DAILY_STEPS, dailySteps);
         editor.apply();
     }
 
-    private void loadData() { //loads number of steps taken after restarting app
+    private void loadData() {
         SharedPreferences sharedPref = getSharedPreferences("MyPref", Context.MODE_PRIVATE);
-        totalSteps = (int) sharedPref.getFloat(PREF_TOTAL_STEPS, 0f); //loads the total step count
-        dailySteps = (int) sharedPref.getFloat(PREF_DAILY_STEPS, 0f); //loads the daily step count
+        totalSteps = (int) sharedPref.getFloat(PREF_TOTAL_STEPS, 0f);
+        dailySteps = (int) sharedPref.getFloat(PREF_DAILY_STEPS, 0f);
         updateUI();
     }
 
     private float getDistanceStepped(int totalDailySteps) {
-        // Calculate distance in meters
-        return (float) (totalDailySteps * 74) / 100; // Convert steps to meters
+        return (float) (totalDailySteps * 0.74);
     }
 
     private float getCaloriesBurnt(int totalDailySteps) {
-        return (float) (totalDailySteps*0.04);
+        return (float) (totalDailySteps * 0.04);
     }
 
-    private void loadWeeklySteps() {
+    private void loadWeeklyData() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String userId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
-        // Fetch last 7 days' data
         db.collection("users")
                 .document(userId)
                 .collection("Activity")
                 .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
-                .limit(7)  // Fetch data for the last 7 days
+                .limit(7)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Entry> entries = new ArrayList<>();  // List for chart data
-                    List<String> dates = new ArrayList<>(); // List for dates
+                    List<Entry> stepsEntries = new ArrayList<>();
+                    List<BarEntry> distanceEntries = new ArrayList<>();
+                    List<PieEntry> caloriesEntries = new ArrayList<>();
+                    List<String> dates = new ArrayList<>();
                     int index = 0;
 
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         long steps = document.getLong("steps");
-                        entries.add(new Entry(index, steps));  // Add steps data to entries
-                        index++;
+                        float distance = getDistanceStepped((int) steps);
+                        float calories = getCaloriesBurnt((int) steps);
 
-                        // Get the date from the document
+                        stepsEntries.add(new Entry(index, steps));
+                        distanceEntries.add(new BarEntry(index, distance));
+                        caloriesEntries.add(new PieEntry(calories, formatDate(document.getString("date"))));
+
                         String dateString = document.getString("date");
                         if (dateString != null) {
-                            // Parse the date and format it to only show month and day
                             try {
                                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                                 SimpleDateFormat outputFormat = new SimpleDateFormat("MM-dd", Locale.getDefault());
                                 Date date = inputFormat.parse(dateString);
                                 String formattedDate = outputFormat.format(date);
-                                dates.add(0, formattedDate); // Store the formatted date in the list
+                                dates.add(0, formattedDate);
                             } catch (ParseException e) {
                                 Log.e(TAG, "Error parsing date: " + dateString, e);
                             }
                         }
+
+                        index++;
                     }
 
+                    // Populate LineChart for steps
+                    LineDataSet stepsDataSet = new LineDataSet(stepsEntries, "Steps");
+                    LineData stepsLineData = new LineData(stepsDataSet);
+                    stepsLineChart.setData(stepsLineData);
+                    stepsLineChart.invalidate();
+
+                    // Populate BarChart for distance
+                    BarDataSet distanceDataSet = new BarDataSet(distanceEntries, "Distance (m)");
+                    BarData distanceBarData = new BarData(distanceDataSet);
+                    distanceBarChart.setData(distanceBarData);
+                    distanceBarChart.invalidate();
+
+                    // Populate PieChart for calories
+                    PieDataSet caloriesDataSet = new PieDataSet(caloriesEntries, "Calories Burnt");
+                    caloriesDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+                    PieData caloriesPieData = new PieData(caloriesDataSet);
+
+                    caloriesPieData.setDrawValues(false);  // Move this here after setting the data
 
 
-                    // Create dataset and assign it to the chart
-                    LineDataSet dataSet = new LineDataSet(entries, "Steps");
-                    dataSet.setLineWidth(2f);
-                    LineData lineData = new LineData(dataSet);
-                    lineChart.setData(lineData);
-                    lineChart.invalidate();  // Refresh chart
+                    caloriesPieChart.setData(caloriesPieData);
+                    caloriesPieChart.invalidate();
 
-                    // Update the x-axis with the fetched dates
-                    XAxis xAxis = lineChart.getXAxis();
-                    xAxis.setValueFormatter(new IndexAxisValueFormatter(dates)); // Set the dates as labels
+                    // Update the x-axis labels for both the LineChart and BarChart
+                    XAxis stepsXAxis = stepsLineChart.getXAxis();
+                    stepsXAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
+
+                    XAxis distanceXAxis = distanceBarChart.getXAxis();
+                    distanceXAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
                 })
                 .addOnFailureListener(e -> Log.w(TAG, "Error retrieving step data", e));
     }
 
-    private void setupChart() {
-        lineChart.getDescription().setEnabled(false);  // Disable chart description
-        lineChart.setTouchEnabled(true);
-        lineChart.setDragEnabled(true);
-        lineChart.setScaleEnabled(true);
-
-        XAxis xAxis = lineChart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-        xAxis.setGranularity(1f);  // Interval of 1 day
-
-
-        YAxis leftAxis = lineChart.getAxisLeft();
-        leftAxis.setDrawGridLines(true);
-
-        YAxis rightAxis = lineChart.getAxisRight();
-        rightAxis.setEnabled(false);  // Disable the right axis
+    private void setupCharts() {
+        configureLineChart(stepsLineChart, "Steps");
+        configureBarChart(distanceBarChart, "Distance (m)");
+        configurePieChart(caloriesPieChart, "Calories Burnt");
     }
 
+    private void configureLineChart(LineChart chart, String label) {
+        chart.getDescription().setEnabled(false);
+        chart.setTouchEnabled(true);
+        chart.setDragEnabled(true);
+        chart.setScaleEnabled(true);
+        chart.setPinchZoom(true);
 
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setGranularity(1f);
+
+        YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setAxisMinimum(0f);
+
+        YAxis rightAxis = chart.getAxisRight();
+        rightAxis.setEnabled(false);
+    }
+
+    private void configureBarChart(BarChart chart, String label) {
+        chart.getDescription().setEnabled(false);
+        chart.setDrawGridBackground(false);
+        chart.setTouchEnabled(true);
+        chart.setDragEnabled(true);
+        chart.setScaleEnabled(true);
+        chart.setPinchZoom(true);
+        chart.setFitBars(true);
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setGranularity(1f);
+
+        YAxis leftAxis = chart.getAxisLeft();
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setAxisMinimum(0f);
+
+        YAxis rightAxis = chart.getAxisRight();
+        rightAxis.setEnabled(false);
+    }
+
+    private void configurePieChart(PieChart chart, String label) {
+        chart.getDescription().setEnabled(false);  // Disable chart description
+        chart.setTouchEnabled(true);  // Enable touch gestures
+        chart.setDragDecelerationFrictionCoef(0.95f);  // Set deceleration friction
+        chart.setDrawHoleEnabled(true);  // Enable the center hole
+        chart.setHoleColor(Color.WHITE);  // Set the hole color to white
+        chart.setTransparentCircleRadius(61f);  // Set the transparency circle radius
+
+        // Hide the value labels (so only the dates are shown in the slices)
+        chart.setDrawEntryLabels(true);  // Enable showing entry labels (dates)
+
+        chart.invalidate();  // Refresh the chart
+    }
+
+    private String formatDate(String dateString) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            SimpleDateFormat outputFormat = new SimpleDateFormat("MM-dd", Locale.getDefault());
+            Date date = inputFormat.parse(dateString);
+            return outputFormat.format(date);
+        } catch (ParseException e) {
+            Log.e(TAG, "Error parsing date: " + dateString, e);
+            return dateString;
+        }
+    }
 
     public void onAccuracyChanged(Sensor sensor, int i) {
 
