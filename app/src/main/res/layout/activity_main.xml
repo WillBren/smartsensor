@@ -18,6 +18,17 @@
         android:padding="16dp"
         android:gravity="center">
 
+        <TextView
+            android:id="@+id/welcome_banner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#6200EE"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"/>
+
         <!-- SmartSensor Header -->
         <TextView
             android:id="@+id/smart_sensor"
@@ -71,7 +82,7 @@
                             android:id="@+id/steps_label"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Steps"
+                            android:text="Weekly Totals"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#6200EE" />
@@ -80,49 +91,17 @@
                             android:id="@+id/steps_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="10,000"
+                            android:text="Loading..."
                             android:textSize="16sp"
                             android:textColor="#000" />
 
                         <TextView
-                            android:id="@+id/goal_label"
+                            android:id="@+id/distance_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Goal: 12,000"
-                            android:textSize="14sp"
-                            android:textColor="#757575" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/heart_rate_label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Heart Rate"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="#6200EE" />
-
-                        <TextView
-                            android:id="@+id/heart_rate_value"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="75 bpm"
+                            android:text="Loading..."
                             android:textSize="16sp"
                             android:textColor="#000" />
-
-                        <TextView
-                            android:id="@+id/avg_heart_rate_label"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Avg: 72 bpm"
-                            android:textSize="14sp"
-                            android:textColor="#757575" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -132,7 +111,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Calories Burned: 500 kcal"
+                    android:text="Loading..."
                     android:textSize="16sp"
                     android:textColor="#000" />
 
@@ -141,7 +120,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="BMI: 22.0"
+                    android:text="BMI: Loading..."
                     android:textSize="16sp"
                     android:textColor="#000" />
             </LinearLayout>
