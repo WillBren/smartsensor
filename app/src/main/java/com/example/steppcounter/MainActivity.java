@@ -98,7 +98,8 @@ public class MainActivity extends AppCompatActivity {
 
         editDetailsButton.setOnClickListener(v -> {
             Toast.makeText(MainActivity.this, "Nutrition button clicked!", Toast.LENGTH_SHORT).show();
-            // tells button to go from main to nutrition screen
+            Intent intent = new Intent(MainActivity.this, EditDetailsActivity.class);
+            startActivity(intent);
         });
 
         logoutButton.setOnClickListener(v -> {

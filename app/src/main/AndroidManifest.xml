@@ -42,7 +42,7 @@
             android:exported="false" />
 
         <activity android:name=".StepActivity" />
-
+        <activity android:name=".EditDetailsActivity" />
         <receiver android:name=".StepResetReceiver" />
 
     </application>
