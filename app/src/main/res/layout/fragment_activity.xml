@@ -93,6 +93,7 @@
             android:layout_marginTop="24dp"
             android:layout_gravity="center_horizontal"/>
 
+        <!-- Content for steps -->
         <!-- Title for the Steps Chart -->
         <TextView
             android:id="@+id/stepsChartTitle"
@@ -104,7 +105,7 @@
             android:textStyle="bold"
             android:layout_marginTop="16dp" />
 
-        <!-- Spinner for Chart Type Selection -->
+        <!-- Spinner for Steps Chart Type Selection -->
         <Spinner
             android:id="@+id/chartTypeSpinner"
             android:layout_width="wrap_content"
@@ -137,7 +138,8 @@
             android:layout_marginTop="16dp"
             android:visibility="gone"/>
 
-        <!-- Title for the Distance BarChart -->
+        <!-- Content for distance -->
+        <!-- Title for the Distance Chart -->
         <TextView
             android:id="@+id/distanceChartTitle"
             android:layout_width="wrap_content"
@@ -148,6 +150,15 @@
             android:textStyle="bold"
             android:layout_marginTop="24dp" />
 
+        <!-- Spinner for Distance Chart Type Selection -->
+        <Spinner
+            android:id="@+id/distanceChartTypeSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp" />
+
         <!-- BarChart for Weekly Distance -->
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/distanceBarChart"
@@ -155,8 +166,27 @@
             android:layout_height="300dp"
             android:layout_marginTop="8dp"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp" />
+            android:layout_marginEnd="16dp"
+            android:visibility="visible"/>
 
+        <!-- LineChart for Weekly Distance -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/distanceLineChart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+
+        <!-- PieChart for Distance -->
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/distancePieChart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+
+
+        <!-- Content for calories -->
         <!-- Title for the Calories Burnt PieChart -->
         <TextView
             android:id="@+id/caloriesChartTitle"
@@ -168,6 +198,15 @@
             android:textStyle="bold"
             android:layout_marginTop="24dp" />
 
+        <!-- Spinner for Calories Chart Type Selection -->
+        <Spinner
+            android:id="@+id/caloriesChartTypeSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:minHeight="48dp" />
+
         <!-- PieChart for Weekly Calories Burnt -->
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/caloriesPieChart"
@@ -177,5 +216,22 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginBottom="24dp" />
+
+        <!-- LineChart for Weekly Calories Burnt -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/caloriesLineChart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+
+        <!-- BarChart for Weekly Calories Burnt -->
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/caloriesBarChart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
+
     </LinearLayout>
 </ScrollView>
