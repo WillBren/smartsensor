@@ -17,7 +17,11 @@ import android.hardware.SensorManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -84,8 +88,13 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
     // LineChart, BarChart, PieChart
     private LineChart stepsLineChart;
+    private BarChart stepsBarChart;
+    private PieChart stepsPieChart;
+
     private BarChart distanceBarChart;
     private PieChart caloriesPieChart;
+
+    private Spinner chartTypeSpinner;
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
@@ -101,11 +110,18 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
         // Initialize LineChart, BarChart, and PieChart
         stepsLineChart = findViewById(R.id.stepsLineChart);
+        stepsBarChart = findViewById(R.id.stepsBarChart);
+        stepsPieChart = findViewById(R.id.stepsPieChart);
+
+
         distanceBarChart = findViewById(R.id.distanceBarChart);
         caloriesPieChart = findViewById(R.id.caloriesPieChart);
 
         backButton = findViewById(R.id.back_button);
         setupButtonListeners();
+
+        chartTypeSpinner = findViewById(R.id.chartTypeSpinner); // Initialize the spinner
+        setupChartTypeSpinner();
 
         // Set the chart titles
         TextView stepsChartTitle = findViewById(R.id.stepsChartTitle);
@@ -292,7 +308,10 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
                 .limit(7)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Entry> stepsEntries = new ArrayList<>();
+                    List<Entry> stepsListEntries = new ArrayList<>();
+                    List<BarEntry> stepsBarEntries = new ArrayList<>();
+                    List<PieEntry> stepsPieEntries = new ArrayList<>();
+
                     List<BarEntry> distanceEntries = new ArrayList<>();
                     List<PieEntry> caloriesEntries = new ArrayList<>();
                     List<String> dates = new ArrayList<>();
@@ -303,7 +322,13 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
                         float distance = getDistanceStepped((int) steps);
                         float calories = getCaloriesBurnt((int) steps);
 
-                        stepsEntries.add(new Entry(index, steps));
+                        // Add to LineChart data
+                        stepsListEntries.add(new Entry(index, steps));
+                        // Add to BarChart data
+                        stepsBarEntries.add(new BarEntry(index, steps));
+                        // Add to PieChart data
+                        stepsPieEntries.add(new PieEntry(steps, formatDate(document.getString("date"))));
+
                         distanceEntries.add(new BarEntry(index, distance));
                         caloriesEntries.add(new PieEntry(calories, formatDate(document.getString("date"))));
 
@@ -324,17 +349,35 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
                     }
 
                     // Populate LineChart for steps
-                    LineDataSet stepsDataSet = new LineDataSet(stepsEntries, "Steps");
+                    LineDataSet stepsDataSet = new LineDataSet(stepsListEntries, "Steps");
                     LineData stepsLineData = new LineData(stepsDataSet);
                     stepsLineChart.setData(stepsLineData);
                     stepsLineChart.invalidate();
 
+
                     // Populate BarChart for distance with rainbow colors for each day
-                    BarDataSet distanceDataSet = new BarDataSet(distanceEntries, "Distance (m)");
+                    BarDataSet stepsBarDataSet = new BarDataSet(stepsBarEntries, "steps");
                     // Define rainbow colors for 7 bars (you can add more colors if necessary)
                     int[] rainbowColors = {
                             Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE, Color.CYAN, Color.MAGENTA, Color.DKGRAY
                     };
+                    stepsBarDataSet.setColors(rainbowColors);  // Apply the rainbow color scheme to bars
+                    BarData stepsBarData = new BarData(stepsBarDataSet);
+                    stepsBarChart.setData(stepsBarData);
+                    stepsBarChart.invalidate();
+
+                    // Populate PieChart for calories with rainbow colors for each slice
+                    PieDataSet stepsPieDataSet = new PieDataSet(stepsPieEntries, "steps");
+                    // Apply the same rainbow color scheme to the pie chart
+                    stepsPieDataSet.setColors(rainbowColors);  // Use the same rainbow colors
+                    PieData stepsPieData = new PieData(stepsPieDataSet);
+                    stepsPieData.setDrawValues(false);  // Remove default value labels for clarity
+                    stepsPieChart.setData(stepsPieData);
+                    stepsPieChart.invalidate();
+
+
+                    // Populate BarChart for distance with rainbow colors for each day
+                    BarDataSet distanceDataSet = new BarDataSet(distanceEntries, "Distance (m)");
                     distanceDataSet.setColors(rainbowColors);  // Apply the rainbow color scheme to bars
                     BarData distanceBarData = new BarData(distanceDataSet);
                     distanceBarChart.setData(distanceBarData);
@@ -349,9 +392,12 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
                     caloriesPieChart.setData(caloriesPieData);
                     caloriesPieChart.invalidate();
 
-                    // Update the x-axis labels for both the LineChart and BarChart
-                    XAxis stepsXAxis = stepsLineChart.getXAxis();
-                    stepsXAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
+                    // Update the x-axis labels
+                    XAxis stepsLineXAxis = stepsLineChart.getXAxis();
+                    stepsLineXAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
+
+                    XAxis stepsBarXAxis = stepsBarChart.getXAxis();
+                    stepsBarXAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
 
                     XAxis distanceXAxis = distanceBarChart.getXAxis();
                     distanceXAxis.setValueFormatter(new IndexAxisValueFormatter(dates));
@@ -361,6 +407,9 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
 
     private void setupCharts() {
         configureLineChart(stepsLineChart, "Steps");
+        configureBarChart(stepsBarChart, "Steps");
+        configurePieChart(stepsPieChart, "steps");
+
         configureBarChart(distanceBarChart, "Distance (m)");
         configurePieChart(caloriesPieChart, "Calories Burnt");
     }
@@ -431,6 +480,44 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
             Log.e(TAG, "Error parsing date: " + dateString, e);
             return dateString;
         }
+    }
+
+    private void setupChartTypeSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.chart_types, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        chartTypeSpinner.setAdapter(adapter);
+
+        chartTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0: // Line Chart
+                        stepsLineChart.setVisibility(View.VISIBLE);
+                        stepsBarChart.setVisibility(View.GONE);
+                        stepsPieChart.setVisibility(View.GONE);
+                        break;
+                    case 1: // Bar Chart
+                        stepsLineChart.setVisibility(View.GONE);
+                        stepsBarChart.setVisibility(View.VISIBLE);
+                        stepsPieChart.setVisibility(View.GONE);
+                        break;
+                    case 2: // Pie Chart
+                        stepsLineChart.setVisibility(View.GONE);
+                        stepsBarChart.setVisibility(View.GONE);
+                        stepsPieChart.setVisibility(View.VISIBLE);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Default to Line Chart
+                stepsLineChart.setVisibility(View.VISIBLE);
+                stepsBarChart.setVisibility(View.GONE);
+                stepsPieChart.setVisibility(View.GONE);
+            }
+        });
     }
 
     public void onAccuracyChanged(Sensor sensor, int i) {

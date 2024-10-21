@@ -43,9 +43,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Create an instance of SensorChecker and check for Significant Motion Sensor
-        SensorChecker sensorChecker = new SensorChecker(this);  // Pass 'this' as the context
-        sensorChecker.checkForSignificantMotionSensor();
+
 
 
         // Initialize the views from the XML layout
@@ -55,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         caloriesBurned = findViewById(R.id.calories_burned);
         bmiValue = findViewById(R.id.bmi);
         activityButton = findViewById(R.id.activity_button);
-        healthButton = findViewById(R.id.health_button);
+
         editDetailsButton = findViewById(R.id.edit_details_button);
         logoutButton = findViewById(R.id.logout_button);
 
@@ -81,11 +79,7 @@ public class MainActivity extends AppCompatActivity {
             temperatureSensorManager.startListening();
         }
 
-        // Check for Heart Rate Sensor
-        sensorChecker.checkForHeartRateSensor();
 
-        // Check for Significant Motion Sensor
-        sensorChecker.checkForSignificantMotionSensor();
 
         // Load and display user's name
         loadUserName();
@@ -113,11 +107,6 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, StepActivity.class);
             startActivity(intent);
             // tells button to go from main screen to activity screen
-        });
-
-        healthButton.setOnClickListener(v -> {
-            //Toast.makeText(MainActivity.this, "Health button clicked!", Toast.LENGTH_SHORT).show();
-            // tells button to go from main to health screen
         });
 
         editDetailsButton.setOnClickListener(v -> {

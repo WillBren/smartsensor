@@ -2,4 +2,10 @@
     <string name="app_name">Stepp Counter</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="chart_types">
+        <item>Line Chart</item>
+        <item>Bar Chart</item>
+        <item>Pie Chart</item>
+    </string-array>
+
 </resources>
