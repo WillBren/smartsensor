@@ -20,6 +20,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -96,8 +97,16 @@ public class StepResetReceiver extends BroadcastReceiver {
 
 
     private String getCurrentDate() {
-        // Returns the current date in yyyy-MM-dd format
+        // Create a SimpleDateFormat instance with the desired format
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return sdf.format(new Date());
+
+        // Get the current date
+        Calendar calendar = Calendar.getInstance();
+
+        // Subtract one day
+        calendar.add(Calendar.DAY_OF_YEAR, -1);
+
+        // Return the formatted date (yesterday's date)
+        return sdf.format(calendar.getTime());
     }
 }
