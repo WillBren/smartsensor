@@ -282,7 +282,7 @@ public class StepActivity extends AppCompatActivity implements SensorEventListen
         distanceStepped.setText(String.format("Distance stepped: %sm", df.format(distance)));
 
         float burntCalories = getCaloriesBurnt(currentSteps);
-        caloriesBurnt.setText(String.format(Locale.getDefault(), "%.0f calories burnt", burntCalories));
+        caloriesBurnt.setText(String.format(Locale.getDefault(), "Calories burnt: %.0f ", burntCalories));
     }
 
     private void saveData() {

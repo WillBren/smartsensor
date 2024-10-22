@@ -1,147 +1,191 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".EditDetailsActivity">
 
+    <!-- Edit Details Header -->
+    <TextView
+        android:id="@+id/header_edit_details"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:text="Edit Details"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <!-- Name Header -->
     <TextView
         android:id="@+id/header_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Name"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="16dp"
         android:paddingStart="16dp"
-        android:paddingTop="16dp" />
+        android:paddingTop="16dp"
+        android:text="Name"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/header_edit_details"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Name Input Field -->
     <EditText
         android:id="@+id/et_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:hint="Enter your name"
+        android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/header_name"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:padding="16dp"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Age Header -->
     <TextView
         android:id="@+id/header_age"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
         android:text="Age"
-        android:textSize="16sp"
         android:textColor="@android:color/black"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/et_name"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Age Input Field -->
     <EditText
         android:id="@+id/et_age"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:hint="Enter your age"
         android:inputType="number"
+        android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/header_age"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:padding="16dp" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Weight Header -->
     <TextView
         android:id="@+id/header_weight"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
         android:text="Weight (kg)"
-        android:textSize="16sp"
         android:textColor="@android:color/black"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/et_age"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Weight Input Field -->
     <EditText
         android:id="@+id/et_weight"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:hint="Enter your weight (kg)"
         android:inputType="numberDecimal"
+        android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/header_weight"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:padding="16dp"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Height Header -->
     <TextView
         android:id="@+id/header_height"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
         android:text="Height (cm)"
-        android:textSize="16sp"
         android:textColor="@android:color/black"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/et_weight"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Height Input Field -->
     <EditText
         android:id="@+id/et_height"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:hint="Enter your height (cm)"
         android:inputType="numberDecimal"
+        android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/header_height"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:padding="16dp"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Gender Header -->
     <TextView
         android:id="@+id/header_gender"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
         android:text="Gender"
-        android:textSize="16sp"
         android:textColor="@android:color/black"
+        android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/et_height"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:paddingStart="16dp"
-        android:paddingTop="16dp" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Gender Input Field -->
     <EditText
         android:id="@+id/et_gender"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:hint="Enter your gender"
+        android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/header_gender"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:padding="16dp"/>
+        app:layout_constraintRight_toRightOf="parent" />
 
     <!-- Save Button -->
+
+    <!-- Back Button at Bottom -->
     <Button
         android:id="@+id/btn_save_details"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:padding="16dp"
         android:text="Save"
-        app:layout_constraintTop_toBottomOf="@id/et_gender"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:padding="16dp"/>
+        app:layout_constraintTop_toBottomOf="@id/et_gender" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/back_button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="20dp"
+        android:text="Back"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
