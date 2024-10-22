@@ -1,5 +1,6 @@
 package com.example.steppcounter;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -22,7 +24,10 @@ import java.util.Objects;
 public class EditDetailsActivity extends AppCompatActivity {
 
     private EditText etName, etAge, etWeight, etHeight, etGender;
+
     private Button btnSaveDetails;
+    private MaterialButton backButton;
+
     private FirebaseFirestore firestore;
     private FirebaseAuth mAuth;
     private String userId;
@@ -52,6 +57,14 @@ public class EditDetailsActivity extends AppCompatActivity {
 
         // Set up button listener for saving details
         btnSaveDetails.setOnClickListener(v -> saveUserDetails());
+    }
+
+    private void setupButtonListeners() {
+        backButton.setOnClickListener(v -> {
+            Toast.makeText(EditDetailsActivity.this, "Back button clicked!", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(EditDetailsActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
     }
 
     // Method to load user details from Firestore
